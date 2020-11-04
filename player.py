@@ -40,6 +40,8 @@ def findYTVideoIdFromInquirerResults(string):
 vidID = findYTVideoIdFromInquirerResults(promptResult['video'])
 print(vidID)
 
+AlreadyPlayedVideos = []
+
 while True:
 	#Remove previous video or ytdl won't download it
 	if os.path.isfile("out"):
@@ -51,11 +53,15 @@ while True:
 		print(err)
 		print("This video can't be played... Trying the next one.")
 		#sys.exit(-1)
-	#
+	AlreadyPlayedVideos.append(vidID)
 
 	params={'part':'snippet','type':'video','relatedToVideoId':vidID,'key':api_key}
 	response = requests.get("https://youtube.googleapis.com/youtube/v3/search",params=params)
 	#print(response.text)
-	vidID = json.loads(response.text)['items'][0]['id']['videoId']
+	
+	for video in json.loads(response.text)['items']:
+		if video['id']['videoId'] not in AlreadyPlayedVideos:
+			vidID = video['id']['videoId']
+			break
 	
 	#url = "https://www.youtube.com/watch?v="+ vidID
